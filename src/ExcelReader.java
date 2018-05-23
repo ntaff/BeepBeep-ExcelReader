@@ -30,7 +30,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExcelReader extends Source
 {
   String m_file;
-  int m_column ;
+  int m_column = -1 ;
 
   
   //Constructeur de base
@@ -63,8 +63,67 @@ public class ExcelReader extends Source
     }
   }
 
-  @Override
+ 
   @SuppressWarnings("resource")
+  
+  //Fonction ajoutant les valeurs du tableau dans une ArrayList
+  public void ajoutValeur (Cell cell, ArrayList<Object> contenuFeuille ) {
+    
+    // Tests sur le type de texte que contient une cellule
+    switch (cell.getCellTypeEnum())
+    {
+
+      // Si c'est une chaîne de carectères
+      case STRING:
+
+        // On affiche son contenu
+        contenuFeuille.add(cell.getRichStringCellValue().getString());
+        break;
+
+        // Si c'est un nombre
+      case NUMERIC:
+
+        // plus précisément si c'est une date
+        if (DateUtil.isCellDateFormatted(cell))
+        {
+          // On affiche son contenu
+          contenuFeuille.add(cell.getDateCellValue());
+        }
+
+        else
+        {
+          // On affiche son contenu
+          contenuFeuille.add(cell.getNumericCellValue());
+        }
+        break;
+
+        // Si c'est un booleen
+      case BOOLEAN:
+        // On affiche son contenu
+        contenuFeuille.add(cell.getBooleanCellValue());
+        break;
+
+        // Si c'est une formule
+      case FORMULA:
+        // On affiche son contenu
+        contenuFeuille.add(cell.getCellFormula());
+        break;
+
+        // Si la case est vide
+      case BLANK:
+        // On affiche rien
+        contenuFeuille.add("");
+        break;
+
+        // Par défaut on suppose que la case est vide
+      default:
+        // Donc on affiche rien
+        contenuFeuille.add("");
+     }// On ferme le switch
+    
+  }
+  
+  @Override
 
   public boolean compute(Object[] inputs, Queue<Object[]> outputs)
   {
@@ -111,76 +170,53 @@ public class ExcelReader extends Source
 
       // Pour stocker le contenu de la feuille
       ArrayList<Object> contenuFeuille = new ArrayList<Object>();
-
-      // On parcoure les colonness
-      for (Row row1 : sheet1)
+      
+      //Si aucun numéro de colonne n'est passé en paramètre
+      if(m_column == -1) 
       {
-
-        // On parcoure les lignes
-        for (Cell cell : row1)
+        
+        // On parcoure les colonnes
+        for (Row row1 : sheet1)
         {
-
-          // Tests sur le type de texte que contient une cellule
-          switch (cell.getCellTypeEnum())
+  
+          // On parcoure les lignes
+          for (Cell cell : row1)
           {
-
-          // Si c'est une chaîne de carectères
-          case STRING:
-
-            // On affiche son contenu
-            contenuFeuille.add(cell.getRichStringCellValue().getString());
-            break;
-
-            // Si c'est un nombre
-          case NUMERIC:
-
-            // plus précisément si c'est une date
-            if (DateUtil.isCellDateFormatted(cell))
+  
+            //On ajoute les valeurs dans une ArrayList
+            ajoutValeur(cell, contenuFeuille);
+  
+            // On ajoute le contenu de l'ArrayList courante à l'output
+            outputs.add(new Object[] { contenuFeuille.get(i) });
+  
+            // On parcoure l'ArrayList
+            i++;
+  
+          } // On ferme le second for
+        } // On ferme le premier for
+      }
+      
+      
+      else
+      {
+        for(Row r : sheet1) 
+        {
+          //On récupère les valeurs de la colonne passée en paramètre
+          Cell cell = r.getCell(m_column);
+            if(cell != null) 
             {
-              // On affiche son contenu
-              contenuFeuille.add(cell.getDateCellValue());
+              //On ajoute les valeurs dans une ArrayList
+              ajoutValeur(cell, contenuFeuille);
+
+            // On ajoute le contenu de l'ArrayList courante à l'output
+            outputs.add(new Object[] { contenuFeuille.get(i) });
+
+            // On parcoure l'ArrayList
+            i++;
+            
             }
-
-            else
-            {
-              // On affiche son contenu
-              contenuFeuille.add(cell.getNumericCellValue());
-            }
-            break;
-
-            // Si c'est un booleen
-          case BOOLEAN:
-            // On affiche son contenu
-            contenuFeuille.add(cell.getBooleanCellValue());
-            break;
-
-            // Si c'est une formule
-          case FORMULA:
-            // On affiche son contenu
-            contenuFeuille.add(cell.getCellFormula());
-            break;
-
-            // Si la case est vide
-          case BLANK:
-            // On affiche rien
-            contenuFeuille.add("");
-            break;
-
-            // Par défaut on suppose que la case est vide
-          default:
-            // Donc on affiche rien
-            contenuFeuille.add("");
-          }// On ferme le switch
-
-          // On ajoute le contenu de l'ArrayList courante à l'output
-          outputs.add(new Object[] { contenuFeuille.get(i) });
-
-          // On parcoure l'ArrayList
-          i++;
-
-        } // On ferme le second for
-      } // On ferme le premier for
-
+        }
+      }
     }
     // Si le fichier n'existe pas
     catch (FileNotFoundException e)
@@ -207,7 +243,7 @@ public class ExcelReader extends Source
   public static void main(String[] args) throws Exception
   {
 
-    ExcelReader test = new ExcelReader("C:\\Users\\Taffoureau\\Music\\Excel Tests\\workbook.xls");
+    ExcelReader test = new ExcelReader("C:\\Users\\Taffoureau\\Music\\Excel Tests\\workbook.xls", 5);
 
 
     Doubler doubler = new Doubler();
