@@ -31,6 +31,7 @@ public class ExcelReader extends Source
 {
   String m_file;
   int m_column = -1 ;
+  ArrayList<Integer> m_columntab = new ArrayList<Integer>();
 
   
   //Constructeur de base
@@ -60,6 +61,27 @@ public class ExcelReader extends Source
     if(m_column < 1) 
     {
       throw new ExcelReaderExceptions("Numéro de colonne invalide !");
+    }
+  }
+  
+  
+  public ExcelReader(String path, int... args) throws ExcelReaderExceptions 
+  {
+    super(1) ;
+    m_file = path;
+    
+    if (!path.endsWith("xls"))
+    {
+      throw new ExcelReaderExceptions("Format de fichier incorrect !");
+    }
+    
+    for (int i = 0; i < args.length; i++) 
+    {
+      m_columntab.add(args[i]);
+      if(args[i] < 1) 
+      {
+        throw new ExcelReaderExceptions("Numéro de colonne invalide !");
+      }
     }
   }
 
@@ -195,7 +217,30 @@ public class ExcelReader extends Source
           } // On ferme le second for
         } // On ferme le premier for
       }
-      
+      else if (m_columntab != null)
+      {
+        for (Integer thiscolumn : m_columntab) {
+          
+        
+        for(Row r : sheet1) 
+        {
+          //On récupère les valeurs de la colonne passée en paramètre
+          Cell cell = r.getCell(thiscolumn);
+            if(cell != null) 
+            {
+              //On ajoute les valeurs dans une ArrayList
+              ajoutValeur(cell, contenuFeuille);
+
+            // On ajoute le contenu de l'ArrayList courante à l'output
+            outputs.add(new Object[] { contenuFeuille.get(i) });
+
+            // On parcoure l'ArrayList
+            i++;
+            
+            }
+        }
+        }
+      }
       
       else
       {
@@ -243,14 +288,14 @@ public class ExcelReader extends Source
   public static void main(String[] args) throws Exception
   {
 
-    ExcelReader test = new ExcelReader("C:\\Users\\Taffoureau\\Music\\Excel Tests\\workbook.xls", 5);
+    ExcelReader test = new ExcelReader("C:\\Users\\Taffoureau\\Music\\Excel Tests\\workbook.xls", 4);
 
 
     Doubler doubler = new Doubler();
     Connector.connect(test, doubler);
     Pullable p = doubler.getPullableOutput();
 
-    for (int i = 0; i < 51; i++)
+    for (int i = 0; i < 3000; i++)
     {
       int x = (Integer) p.pull();
 
