@@ -9,7 +9,7 @@ notifications:
 addons:
   sonarqube:
     token:
-      secure: c11f78b32f6c5a83c760c5b6d6ea388e166b07f7 # encrypted value of your token
+      secure: 898c9eb403340d03d4cb897ba4b1b799cbd3a643 # encrypted value of your token
 script:
   - sudo ant install-deps
   - ant test
