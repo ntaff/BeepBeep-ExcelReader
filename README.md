@@ -8,9 +8,9 @@ The palette now contain the following files :
 
 - `ExcelReaderExample.java`: Create an Excel file with numbers in, and, in the main method, call an ExcelReader processor to extract and show the data of this file.
 
-- `ExcelReaderExampleTest.java`: Some JUnit tests of ExcelReaderExample.java.(Not finished yet)
+- `BaseTestExcelReader.java`: Functions to execute before and after tests.
 
-- `ExcelReaderTest.java`: Some JUnit tests of ExcelReader.java. (Not finished yet)
+- `TestExcelReader.java`: Some JUnit tests of ExcelReader.java. (Not finished yet)
 
 - `ExcelReaderExceptions.java`: Exceptions.
 
